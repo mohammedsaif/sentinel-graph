@@ -1,0 +1,156 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SENTINEL Graph – Video script</title>
+<style>
+body{font:17px/1.6 Segoe UI,system-ui,sans-serif;max-width:860px;margin:24px auto;padding:0 16px;color:#222}
+h1{border-bottom:2px solid #ddd;padding-bottom:8px} h2{margin-top:2.2em;color:#1a5fb4}
+blockquote{background:#f4f8ff;border-left:4px solid #1a5fb4;margin:12px 0;padding:8px 16px;font-size:18px}
+pre{background:#1e1e1e;color:#eee;padding:12px 16px;border-radius:6px;overflow-x:auto}
+code{font-family:Consolas,monospace;font-size:15px} p code,li code{background:#eee;padding:1px 5px;border-radius:3px}
+hr{border:0;border-top:1px solid #ddd;margin:2em 0}
+</style></head><body><h1>Video script: SENTINEL Graph (target 7–8 minutes)</h1>
+<h2>Before you hit record</h2>
+<ol>
+<li>Docker Desktop is running and Neo4j is healthy:
+   <code>bash
+   cd C:\Users\Dell\Searches\sentinel-graph
+   docker compose up -d
+   docker ps</code></li>
+<li>Empty the graph so the first load on camera starts from nothing. In Neo4j Browser
+   (http://localhost:7474) run:
+   <code>cypher
+   MATCH (n) DETACH DELETE n</code>
+   The constraints stay in place; the loader recreates them anyway (<code>IF NOT EXISTS</code>).</li>
+<li>Open these and arrange them:</li>
+<li>a terminal in <code>sentinel-graph</code></li>
+<li>VS Code (or any editor) with <code>load_graph.py</code> and <code>queries.cypher</code></li>
+<li>Neo4j Browser at http://localhost:7474, already signed in</li>
+<li><code>screenshots/cluster_D_9778c4c36d78e39f.png</code></li>
+<li>Make the terminal and editor font bigger (Ctrl + <code>+</code>) so text is readable in the recording.</li>
+<li>Camera or mic on. <strong>Do not show <code>.env</code> on screen</strong>: it has your password.</li>
+</ol>
+<hr />
+<h2>1. The problem (0:00–1:00)</h2>
+<p><strong>Show:</strong> your face, or the README title.</p>
+<blockquote>
+<p>"Hi, I'm ___. This is Project Work 6 for SENTINEL: finding fraud with a graph database.</p>
+<p>In the earlier projects we stored SENTINEL transactions in tables in Supabase. Tables are good
+at single rows: one payment, one amount, one label. But fraud often hides in <em>relationships</em>.
+A single payment can look normal, while the same phone is quietly being used by eight
+different customers. That is very hard to see in a table and very easy to see in a graph.</p>
+<p>So I loaded SENTINEL into Neo4j and wrote Cypher to find three patterns: shared devices,
+customers close to known fraud, and merchants that receive money from shared devices."</p>
+</blockquote>
+<h2>2. The graph model (1:00–1:45)</h2>
+<p><strong>Show:</strong> the model block at the top of README.md.</p>
+<blockquote>
+<p>"The model has three kinds of nodes: Customer, Device and Merchant.
+A customer USED_DEVICE a device. A customer PAID a merchant. Every payment is one PAID edge,
+and it carries the amount, the time and the fraud label. I also store the device id on the
+PAID edge, so I know <em>when</em> each device was used, which I need for the 7-day rule."</p>
+</blockquote>
+<h2>3. Setup and connection (1:45–2:30)</h2>
+<p><strong>Show:</strong> <code>docker-compose.yml</code>, then <code>.env.example</code>, then <code>common.py</code>.</p>
+<blockquote>
+<p>"Neo4j runs in Docker on port 7474 for the browser and 7687 for Bolt, which the Python
+driver uses. Secrets live in a .env file that is git-ignored. In the repo there's only
+.env.example with placeholder values.</p>
+<p>common.py opens the driver and calls verify_connectivity, so the script fails right away
+with a clear error if Neo4j isn't up."</p>
+</blockquote>
+<p><strong>Run:</strong></p>
+<pre><code class="language-bash">docker ps
+</code></pre>
+<blockquote>
+<p>"Here's the container, running and healthy."</p>
+</blockquote>
+<h2>4. The loader: MERGE and constraints (2:30–4:00)</h2>
+<p><strong>Show:</strong> <code>load_graph.py</code>. Scroll to <code>CONSTRAINTS</code>, then <code>MERGE_PAID</code>, then the <code>usage</code> block in <code>main()</code>.</p>
+<blockquote>
+<p>"First, the constraints. Customer, Device and Merchant ids are unique, and there's a
+relationship constraint so each transaction id can exist on only one PAID edge.</p>
+<p>Every write uses MERGE, not CREATE. MERGE means 'find it, or create it if it's missing'. So if I
+run the load twice, the second run finds everything that's already there.</p>
+<p>One trap: if I did <code>tx_count = tx_count + 1</code>, a second run would double the counts. So I compute
+the totals in Python and SET them. Setting the same value twice changes nothing.</p>
+<p>The data is the SENTINEL export from Project Work 4 and 5. I take the earliest 50,000
+transactions and join each one to its fraud label. The script can also read straight
+from my Supabase load with --source supabase."</p>
+</blockquote>
+<p><strong>Run (first time):</strong></p>
+<pre><code class="language-bash">python load_graph.py
+</code></pre>
+<blockquote>
+<p>"50,000 payments: about 15,800 customers, 16,800 devices, 2,000 merchants, and 347
+fraud-labelled payments."</p>
+</blockquote>
+<p><strong>Run (second time):</strong></p>
+<pre><code class="language-bash">python load_graph.py
+</code></pre>
+<blockquote>
+<p>"Same command again. The final counts are identical: no duplicates."</p>
+</blockquote>
+<p><strong>Optional, in Neo4j Browser:</strong></p>
+<pre><code class="language-cypher">SHOW CONSTRAINTS
+</code></pre>
+<h2>5. The fraud queries (4:00–6:00)</h2>
+<p><strong>Show:</strong> <code>queries.cypher</code>, then run in the terminal:</p>
+<pre><code class="language-bash">python run_queries.py
+</code></pre>
+<p>Scroll through the output as you talk.</p>
+<p><strong>Query 1: shared devices in 7 days</strong></p>
+<blockquote>
+<p>"For each device I collect every payment with its customer and time. Each payment is treated
+as the start of a 7-day window, and I count distinct customers in that window.
+29 devices had 3 or more customers within one week. The key number: payments made on shared
+devices are 4% fraud, against 0.69% overall. That's almost six times higher."</p>
+</blockquote>
+<p><strong>Query 2: customers within 2 hops of fraud</strong></p>
+<blockquote>
+<p>"A fraud payment is an edge from a customer to a merchant. Two hops away are people who share a
+device with that payer, or who paid the same merchant. The merchant path is very wide, about
+2,400 customers, because busy shops connect everyone. The device path is only about 300, and
+much more useful. At the top are customers with no fraud of their own who share a phone with
+several fraudsters. Those are the next accounts I'd review."</p>
+</blockquote>
+<p><strong>Query 3: merchants paid from shared devices</strong></p>
+<blockquote>
+<p>"Every merchant in the top 15 sells electronics, gaming or gift cards: things that are easy to
+resell or turn into cash."</p>
+</blockquote>
+<h2>6. The suspicious cluster (6:00–7:30)</h2>
+<p><strong>Show:</strong> Neo4j Browser. Run:</p>
+<pre><code class="language-cypher">:param device_id =&gt; 'D_9778c4c36d78e39f'
+</code></pre>
+<pre><code class="language-cypher">MATCH (d:Device {device_id: $device_id})&lt;-[u:USED_DEVICE]-(c:Customer)
+OPTIONAL MATCH (c)-[p:PAID {device_id: d.device_id}]-&gt;(m:Merchant)
+RETURN d, u, c, p, m
+</code></pre>
+<p>Drag a few nodes apart. Click a red/fraud PAID edge to show its properties.
+You can also show <code>screenshots/cluster_D_9778c4c36d78e39f.png</code>, which marks the fraud edges in red.</p>
+<blockquote>
+<p>"This is the top cluster: one mobile phone in the middle and eight customers around it.</p>
+<p>These eight people have nothing in common. Ages go from 27 to 79, and they live in six
+different cities. Each customer appears on this phone for exactly one day, makes a burst of
+5 to 9 payments to a single merchant, and is never seen on it again. Every merchant sells gift
+cards, electronics or gaming.</p>
+<p>That's the shape of account takeover: someone logs in to a stolen account, cashes out fast,
+and moves to the next one.</p>
+<p>Four of these 62 payments are labelled fraud: 6.5%, nine times the normal rate. All four are
+gift cards paid by card between 1 and 4 in the morning, India time. The other five customers
+have no fraud label yet, but they follow exactly the same pattern on the same phone. In a
+table, each of their payments looks fine. In the graph they're obviously part of the ring."</p>
+</blockquote>
+<h2>7. Wrap-up (7:30–8:00)</h2>
+<p><strong>Show:</strong> the GitHub repo page, or the README.</p>
+<blockquote>
+<p>"To sum up: a graph turns hidden relationships into something you can query and see. MERGE
+and constraints make the load safe to repeat, and three short Cypher queries found shared
+devices, the next suspects, and the merchants fraudsters prefer.
+Everything's in the GitHub repo, with setup steps in the README. Thanks for watching."</p>
+</blockquote>
+<hr />
+<h2>Tips</h2>
+<ul>
+<li>If you go long, cut query 2's detail first. Keep the cluster explanation: it carries the most marks.</li>
+<li>Say numbers <em>after</em> they appear on screen, so the viewer can see them.</li>
+<li>It's fine to cut the recording between sections and join the clips afterwards.</li>
+</ul></body></html>
