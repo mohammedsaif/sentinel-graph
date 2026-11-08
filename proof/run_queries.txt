@@ -1,0 +1,95 @@
+Connected to Neo4j (verify_connectivity OK)
+
+=== q1_shared_devices_7_days  (25 rows, 0.39s)
+            device    kind  customers_in_window  customers_ever  payments_in_window  fraud_in_window window_start window_end
+D_9778c4c36d78e39f  mobile                    4               8                  33                3   2024-10-25 2024-11-01
+D_585860181f663e45  mobile                    4               6                  29                2   2024-10-31 2024-11-07
+D_2630cb01dd62725d  mobile                    4               5                  27                0   2024-10-22 2024-10-29
+D_da21296412e09b1e  mobile                    4               6                  26                0   2024-10-02 2024-10-09
+D_f7c3e6acaffb7cc6  mobile                    4               7                  27                0   2024-10-22 2024-10-29
+D_67bf5e1dc5f561f9  mobile                    3               6                  25                2   2024-11-03 2024-11-10
+D_b584eaf27c16c3f0  mobile                    3               7                  22                2   2024-11-07 2024-11-14
+D_d5e2d88c57d5f8c0  mobile                    3               7                  27                2   2024-10-13 2024-10-20
+D_f2fd7cb77ad377eb  mobile                    3               8                  21                2   2024-10-26 2024-11-02
+D_005ed4cf17d407ae  mobile                    3               5                  24                1   2024-10-02 2024-10-09
+D_0ab87d6796daa5b7 browser                    3               6                  20                1   2024-10-04 2024-10-11
+D_36e7c83002705824  mobile                    3               3                  21                1   2024-10-20 2024-10-27
+D_4ea89e7b334ddd69 browser                    3               7                  19                1   2024-10-21 2024-10-28
+D_51f4279c0c702dee  mobile                    3               7                  21                1   2024-10-08 2024-10-15
+D_7f9232cf27778c5a  mobile                    3               4                  20                1   2024-10-24 2024-10-31
+D_9c6e123832e13497  mobile                    3               9                  16                1   2024-10-27 2024-11-03
+D_c54f64ea49e534c4  mobile                    3               7                  20                1   2024-10-04 2024-10-11
+D_e62d2331df814d26 browser                    3               8                  18                1   2024-10-09 2024-10-16
+D_f56b05fe3464bf25  mobile                    3               4                  16                1   2024-10-13 2024-10-20
+D_447aa561b0f22796  mobile                    3               7                  15                0   2024-10-27 2024-11-03
+D_61e528beef468c15  mobile                    3               5                  16                0   2024-10-12 2024-10-19
+D_a363245f535261c4  mobile                    3               5                  21                0   2024-10-20 2024-10-27
+D_a538f8aab9e36815  mobile                    3               5                  22                0   2024-10-18 2024-10-25
+D_a5cfc7775e5f7e1e  mobile                    3               8                  22                0   2024-11-01 2024-11-08
+D_adcb3d7a29cfc74d browser                    3               6                  22                0   2024-10-20 2024-10-27 
+
+=== q1_summary  (1 rows, 0.18s)
+ devices_flagged  max_customers_in_window
+              29                        4 
+
+=== q2_customers_near_fraud  (25 rows, 0.20s)
+          customer  own_fraud  shared_device_links  fraud_merchant_links                                                          linked_fraud_payer_via_device
+C_a2f0d558c8d061d8          0                    6                     1 [C_313eb6ccd9f43030 via D_b584eaf27c16c3f0, C_53df52fbdca9c364 via D_e62d2331df814d26]
+C_4ecf05b6c77dfc7c          0                    4                     1 [C_313eb6ccd9f43030 via D_b584eaf27c16c3f0, C_78df57c948d3998c via D_b584eaf27c16c3f0]
+C_6da8af4237ef9575          0                    4                     1 [C_cda2799f3ba7161c via D_f2fd7cb77ad377eb, C_51daeb4ab01f6de6 via D_f2fd7cb77ad377eb]
+C_12701070dfdd8220          0                    4                     0 [C_313eb6ccd9f43030 via D_b584eaf27c16c3f0, C_78df57c948d3998c via D_b584eaf27c16c3f0]
+C_1771b7a81286d257          0                    4                     0 [C_cda2799f3ba7161c via D_f2fd7cb77ad377eb, C_51daeb4ab01f6de6 via D_f2fd7cb77ad377eb]
+C_b5fa02bf087d5411          0                    4                     0 [C_cda2799f3ba7161c via D_f2fd7cb77ad377eb, C_51daeb4ab01f6de6 via D_f2fd7cb77ad377eb]
+C_c09c4a63603992b5          0                    4                     0 [C_cda2799f3ba7161c via D_f2fd7cb77ad377eb, C_51daeb4ab01f6de6 via D_f2fd7cb77ad377eb]
+C_513d3cd24c06fb18          0                    3                     2 [C_7836d4b22b008737 via D_9778c4c36d78e39f, C_2a2972814f740736 via D_9778c4c36d78e39f]
+C_3fa6da60efeae6c3          0                    3                     1 [C_7836d4b22b008737 via D_9778c4c36d78e39f, C_2a2972814f740736 via D_9778c4c36d78e39f]
+C_66bf1553911ad0d3          0                    3                     1 [C_3b086d27213d36bc via D_67bf5e1dc5f561f9, C_767ccf70653ef0e2 via D_67bf5e1dc5f561f9]
+C_9d87890f82ffe2a8          0                    3                     1 [C_31cc333f8e998878 via D_d4cb324ff080a35f, C_479b4b85bbb4c116 via D_d4cb324ff080a35f]
+C_afcdaa131234808a          0                    3                     1 [C_7836d4b22b008737 via D_9778c4c36d78e39f, C_2a2972814f740736 via D_9778c4c36d78e39f]
+C_bdf4decd21da651b          0                    3                     1 [C_3b086d27213d36bc via D_67bf5e1dc5f561f9, C_767ccf70653ef0e2 via D_67bf5e1dc5f561f9]
+C_1171575f5aec5abe          0                    3                     0 [C_4786c74bde6aa802 via D_9c6e123832e13497, C_ae1fcb3f229f5364 via D_9c6e123832e13497]
+C_19cd2244a7732f2e          0                    3                     0 [C_4786c74bde6aa802 via D_9c6e123832e13497, C_ae1fcb3f229f5364 via D_9c6e123832e13497]
+C_3e191b08e5956946          0                    3                     0 [C_a9dab964e10bcc7a via D_c54f64ea49e534c4, C_635f27851b21eac3 via D_c54f64ea49e534c4]
+C_422894076968ce68          0                    3                     0 [C_4786c74bde6aa802 via D_9c6e123832e13497, C_ae1fcb3f229f5364 via D_9c6e123832e13497]
+C_4756385a26c2526f          0                    3                     0 [C_a9dab964e10bcc7a via D_c54f64ea49e534c4, C_635f27851b21eac3 via D_c54f64ea49e534c4]
+C_7b135dd5932f4498          0                    3                     0 [C_4786c74bde6aa802 via D_9c6e123832e13497, C_ae1fcb3f229f5364 via D_9c6e123832e13497]
+C_9031b8f7d9996690          0                    3                     0 [C_7836d4b22b008737 via D_9778c4c36d78e39f, C_2a2972814f740736 via D_9778c4c36d78e39f]
+C_99ec882cd80af91a          0                    3                     0 [C_3b086d27213d36bc via D_67bf5e1dc5f561f9, C_767ccf70653ef0e2 via D_67bf5e1dc5f561f9]
+C_b49070292a9fd187          0                    3                     0 [C_a9dab964e10bcc7a via D_c54f64ea49e534c4, C_635f27851b21eac3 via D_c54f64ea49e534c4]
+C_c6e76423f2bdc00d          0                    3                     0 [C_4786c74bde6aa802 via D_9c6e123832e13497, C_ae1fcb3f229f5364 via D_9c6e123832e13497]
+C_cf6cc85cd572f54b          0                    3                     0 [C_4786c74bde6aa802 via D_9c6e123832e13497, C_ae1fcb3f229f5364 via D_9c6e123832e13497]
+C_d3db7bc27bae09a0          0                    3                     0 [C_7836d4b22b008737 via D_9778c4c36d78e39f, C_2a2972814f740736 via D_9778c4c36d78e39f] 
+
+=== q2_summary  (1 rows, 0.06s)
+ fraud_payers  fraud_merchants  via_shared_device  via_fraud_merchant
+          299              238                296                2381 
+
+=== q3_merchants_paid_from_shared_devices  (15 rows, 0.06s)
+          merchant                      name    category        city  payments_from_shared_devices  shared_devices  customers  fraud_payments  amount_inr
+M_97e979f10c0a0ec9 Synthetic Merchant 000484 electronics   Hyderabad                            31               4          4               2   157115.93
+M_e7d860ffd6735dcb Synthetic Merchant 001055      gaming       Patna                            26               3          3               1    93993.09
+M_5d9264b974537afb Synthetic Merchant 001694 electronics      Indore                            25               4          4               2    78872.92
+M_fb27fd772ebeb3a0 Synthetic Merchant 000075      gaming Bhubaneswar                            24               3          3               0    17953.92
+M_3af8e6733b7b812e Synthetic Merchant 001394 electronics       Delhi                            23               3          3               1   260322.50
+M_41f74e8ef7651aa1 Synthetic Merchant 001886  gift_cards      Indore                            23               3          3               0   155518.14
+M_1d11fbb13438e9f5 Synthetic Merchant 001336  gift_cards   Ahmedabad                            22               3          3               1    90872.79
+M_85a1bf390535720d Synthetic Merchant 001696  gift_cards   Bengaluru                            22               3          3               0   146938.22
+M_ed83a8b932dafba0 Synthetic Merchant 000434 electronics       Delhi                            22               3          3               0   196939.76
+M_eb8eed81c08906e5 Synthetic Merchant 000465      gaming      Mumbai                            21               3          3               2   195628.12
+M_0003a0ec3e493195 Synthetic Merchant 001894 electronics     Kolkata                            21               3          3               0   121873.19
+M_aae044435e95df23 Synthetic Merchant 001066  gift_cards       Kochi                            20               3          3               4   121459.98
+M_c7aa76f4ae1f5e6f Synthetic Merchant 001616  gift_cards   Bengaluru                            20               2          3               1   127728.91
+M_92b41811facba0cf Synthetic Merchant 001865      gaming     Lucknow                            20               3          3               0    66318.83
+M_8678793b5b41b66b Synthetic Merchant 001236  gift_cards   Hyderabad                            19               3          3               1    54096.13 
+
+=== q4_most_suspicious_cluster  (5 rows, 0.10s)
+            device    kind  customers  payments  fraud_payments  merchants                       first_payment                        last_payment
+D_9778c4c36d78e39f  mobile          8        62               4          8 2024-10-01T23:05:21.041000000+00:00 2024-11-10T21:35:52.422000000+00:00
+D_f2fd7cb77ad377eb  mobile          8        57               4          8 2024-10-03T19:04:14.157000000+00:00 2024-10-30T22:01:32.548000000+00:00
+D_b584eaf27c16c3f0  mobile          7        47               4          7 2024-10-05T20:38:44.321000000+00:00 2024-11-14T10:48:01.328000000+00:00
+D_d4cb324ff080a35f browser          5        34               4          5 2024-10-12T19:33:16.831000000+00:00 2024-11-14T17:58:25.555000000+00:00
+D_9c6e123832e13497  mobile          9        60               3          9 2024-09-30T21:08:17.095000000+00:00 2024-11-02T21:39:14.530000000+00:00 
+
+=== q5_cluster_graph  (62 rows, 0.06s)
+device D_9778c4c36d78e39f: 17 nodes, 62 payments, 4 fraud
+

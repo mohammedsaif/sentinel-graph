@@ -202,11 +202,16 @@ def counts(driver) -> dict:
     CALL () { MATCH (n:Customer) RETURN count(n) AS customers }
     CALL () { MATCH (n:Device) RETURN count(n) AS devices }
     CALL () { MATCH (n:Merchant) RETURN count(n) AS merchants }
-    CALL () { MATCH ()-[r:PAID]->() RETURN count(r) AS paid, sum(r.fraud_label) AS fraud_paid }
+    CALL () { MATCH ()-[r:PAID]->() RETURN count(r) AS paid,
+              count(DISTINCT r.transaction_id) AS distinct_paid_ids, sum(r.fraud_label) AS fraud_paid }
     CALL () { MATCH ()-[r:USED_DEVICE]->() RETURN count(r) AS used_device }
-    RETURN customers, devices, merchants, paid, fraud_paid, used_device
+    RETURN customers, devices, merchants, paid, distinct_paid_ids, fraud_paid, used_device
     """
     return driver.execute_query(q).records[0].data()
+
+
+def fmt(c: dict) -> str:
+    return ", ".join(f"{k}={v:,}" for k, v in c.items())
 
 
 def main():
@@ -222,6 +227,11 @@ def main():
     src = Supabase() if args.source == "supabase" else CsvExport()
     print(f"Reading {args.sample:,} transactions from {args.source} ...")
     tx = src.transactions(args.sample)
+    source_ids = {r["transaction_id"] for r in tx}
+    print(f"Source sample: {len(tx):,} rows, {len(source_ids):,} distinct transaction_ids, "
+          f"{sum(r['fraud_label'] for r in tx):,} fraud-labelled")
+    if len(source_ids) < 5000:
+        raise SystemExit("Fewer than 5,000 distinct transactions in the source sample")
 
     cust_ids = {r["customer_id"] for r in tx}
     dev_ids = {r["device_id"] for r in tx if r["device_id"]}
@@ -250,6 +260,7 @@ def main():
 
     with get_driver() as driver:
         print("Connected to Neo4j (verify_connectivity OK)")
+        print("Graph BEFORE load: " + fmt(counts(driver)))
         if args.reset:
             with driver.session() as s:  # IN TRANSACTIONS needs an auto-commit transaction
                 s.run("MATCH (n) CALL (n) { DETACH DELETE n } IN TRANSACTIONS OF 5000 ROWS").consume()
@@ -264,7 +275,10 @@ def main():
 
     span = f"{min(r['time'] for r in tx):%Y-%m-%d} .. {max(r['time'] for r in tx):%Y-%m-%d}"
     print(f"\nLoaded {len(tx):,} transactions ({span}) in {time.time() - t0:.0f}s")
-    print("Graph now holds: " + ", ".join(f"{k}={v:,}" for k, v in c.items()))
+    print("Graph AFTER load:  " + fmt(c))
+    ok = c["paid"] == c["distinct_paid_ids"] >= len(source_ids)
+    print(f"Check: {c['paid']:,} PAID edges for {c['distinct_paid_ids']:,} distinct transaction_ids "
+          f"(source sample {len(source_ids):,}) -> {'no duplicates' if ok else 'MISMATCH'}")
 
 
 if __name__ == "__main__":

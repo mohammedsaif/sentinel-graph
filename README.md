@@ -66,18 +66,27 @@ python visualize_cluster.py     # PNG of the top suspicious cluster
 Useful options: `python load_graph.py --source supabase --sample 20000`, `--reset` (wipe the graph
 first), `python run_queries.py q3 --min-customers 4`.
 
-### Load output (first and second run)
+### Load proof: empty graph, then the same load twice
+
+Each run prints the size of the source sample, the graph counts **before** and **after**, and checks
+that every `PAID` edge has its own `transaction_id`. Full log: [`proof/load_twice.txt`](proof/load_twice.txt).
 
 ```
-Reading 50,000 transactions from csv ...
-Reading 15,809 customers, 16,814 devices, 1,998 merchants ...
-Connected to Neo4j (verify_connectivity OK)
-Loaded 50,000 transactions (2024-09-30 .. 2024-11-15) in 32s
-Graph now holds: customers=15,809, devices=16,814, merchants=1,998, paid=50,000, fraud_paid=347, used_device=17,151
+##### python load_graph.py   (run 1)
+Source sample: 50,000 rows, 50,000 distinct transaction_ids, 347 fraud-labelled
+Graph BEFORE load: customers=0, devices=0, merchants=0, paid=0, distinct_paid_ids=0, fraud_paid=0, used_device=0
+Graph AFTER load:  customers=15,809, devices=16,814, merchants=1,998, paid=50,000, distinct_paid_ids=50,000, fraud_paid=347, used_device=17,151
+Check: 50,000 PAID edges for 50,000 distinct transaction_ids (source sample 50,000) -> no duplicates
+
+##### python load_graph.py   (run 2)
+Source sample: 50,000 rows, 50,000 distinct transaction_ids, 347 fraud-labelled
+Graph BEFORE load: customers=15,809, devices=16,814, merchants=1,998, paid=50,000, distinct_paid_ids=50,000, fraud_paid=347, used_device=17,151
+Graph AFTER load:  customers=15,809, devices=16,814, merchants=1,998, paid=50,000, distinct_paid_ids=50,000, fraud_paid=347, used_device=17,151
+Check: 50,000 PAID edges for 50,000 distinct transaction_ids (source sample 50,000) -> no duplicates
 ```
 
-The second run prints the exact same `Graph now holds` line. Duplicate checks after the second run:
-`dup_customers=0, dup_paid=0, dup_used_device=0`.
+So **50,000 transactions** are loaded (10× the 5,000 minimum), and the second run leaves every
+count unchanged.
 
 ## Why the load can run twice without duplicates
 
@@ -100,8 +109,9 @@ SET p.amount = r.amount, p.time = r.time, p.fraud_label = r.fraud_label,
 
 ## The queries and what they found
 
-All queries are in [`queries.cypher`](queries.cypher). Full output is in `output/run_queries.txt`
-after a run. Results below are from the 50k sample: 347 of 50,000 payments (0.69%) are fraud-labelled.
+All queries are in [`queries.cypher`](queries.cypher). The full output of
+`python run_queries.py` is committed in [`proof/run_queries.txt`](proof/run_queries.txt)
+(a run also writes one CSV per query to `output/`). Results below are from the 50k sample: 347 of 50,000 payments (0.69%) are fraud-labelled.
 
 ### 1. Devices shared by 3 or more customers within 7 days
 
@@ -167,9 +177,11 @@ OPTIONAL MATCH (c)-[p:PAID {device_id: d.device_id}]->(m:Merchant)
 RETURN d, u, c, p, m
 ```
 
-![Neo4j Browser graph view of the cluster](screenshots/neo4j_browser_cluster.png)
+![Cluster D_9778c4c36d78e39f: one device, 8 customers, their merchants; fraud payments in red](screenshots/cluster_D_9778c4c36d78e39f.png)
 
-![Cluster drawn by visualize_cluster.py](screenshots/cluster_D_9778c4c36d78e39f.png)
+*Saved output of `python visualize_cluster.py` (it reads `q4_most_suspicious_cluster` and
+`q5_cluster_graph` from `queries.cypher`). Dashed = `USED_DEVICE`, green = `PAID`,
+red = `PAID` with `fraud_label = 1`.*
 
 **What the graph shows**
 

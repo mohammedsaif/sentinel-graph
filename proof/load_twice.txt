@@ -1,0 +1,20 @@
+##### python load_graph.py   (run 1)
+Reading 50,000 transactions from csv ...
+Source sample: 50,000 rows, 50,000 distinct transaction_ids, 347 fraud-labelled
+Reading 15,809 customers, 16,814 devices, 1,998 merchants ...
+Connected to Neo4j (verify_connectivity OK)
+Graph BEFORE load: customers=0, devices=0, merchants=0, paid=0, distinct_paid_ids=0, fraud_paid=0, used_device=0
+Loaded 50,000 transactions (2024-09-30 .. 2024-11-15) in 29s
+Graph AFTER load:  customers=15,809, devices=16,814, merchants=1,998, paid=50,000, distinct_paid_ids=50,000, fraud_paid=347, used_device=17,151
+Check: 50,000 PAID edges for 50,000 distinct transaction_ids (source sample 50,000) -> no duplicates
+
+##### python load_graph.py   (run 2)
+Reading 50,000 transactions from csv ...
+Source sample: 50,000 rows, 50,000 distinct transaction_ids, 347 fraud-labelled
+Reading 15,809 customers, 16,814 devices, 1,998 merchants ...
+Connected to Neo4j (verify_connectivity OK)
+Graph BEFORE load: customers=15,809, devices=16,814, merchants=1,998, paid=50,000, distinct_paid_ids=50,000, fraud_paid=347, used_device=17,151
+Loaded 50,000 transactions (2024-09-30 .. 2024-11-15) in 21s
+Graph AFTER load:  customers=15,809, devices=16,814, merchants=1,998, paid=50,000, distinct_paid_ids=50,000, fraud_paid=347, used_device=17,151
+Check: 50,000 PAID edges for 50,000 distinct transaction_ids (source sample 50,000) -> no duplicates
+
